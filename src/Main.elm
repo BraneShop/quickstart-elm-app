@@ -5,13 +5,14 @@ import Browser.Dom as Dom
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Lazy exposing (lazy, lazy2)
 
 main : Program () Model Msg
 main =
   Browser.element
         { init          = \_ -> init
-        -- , view          = view
-        , view          = cssView
+        , view          = view
+        -- , view          = cssView
         , update        = update
         , subscriptions = \_ -> Sub.none
         }
@@ -147,7 +148,8 @@ update msg model =
             ( { model | version = v }, Cmd.none )
 
         SetOS o ->
-            ( { model | os = o }, Cmd.none )
+            let gpu = if o == Mac then NoGPU else model.gpu
+            in ( { model | os = o, gpu = gpu }, Cmd.none )
 
         SetGPU g ->
             ( { model | gpu = g }, Cmd.none )
@@ -181,6 +183,7 @@ view model =
         ]
 
 
+-- TODO: PyTorch, Windows, Py27 Unsupported
 answer : Model -> Html Msg
 answer m = 
   case ( m.environment,  m.os, (m.language, m.framework) )
@@ -358,6 +361,9 @@ print(x.numpy())
  in
   pre [] [ text <| String.join "\r\n" lines ]
 
+
+-- TODO:
+--  Add example programs for each of the options
 
 ma : Bool -> Attribute Msg
 ma cond = class <| if cond then "active" else ""
